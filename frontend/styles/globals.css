@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-gradient-to-br from-[#40E0D0] to-[#C084FC] text-white font-sans;
+}
+
+h1, h2 {
+  @apply font-bold;
+}
+
+a {
+  @apply transition-all hover:text-yellow-300;
+}

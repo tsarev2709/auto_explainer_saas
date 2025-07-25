@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gradient-to-br from-[#40E0D0] to-[#C084FC] text-white font-sans;
+  @apply bg-gradient-to-br from-[#40E0D0] to-[#C084FC] font-sans;
+  color: white;
 }
 
 h1, h2 {

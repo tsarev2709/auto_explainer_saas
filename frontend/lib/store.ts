@@ -22,6 +22,13 @@ export interface ScriptOutput {
   rationale: string;
 }
 
+export interface GeneratedImage {
+  id: string;
+  url: string;
+  sceneId: string;
+  promptUsed: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -33,6 +40,11 @@ export interface Product {
   funnelDescription: string;
   productGoal: string;
   script?: ScriptOutput;
+  /**
+   * Selected keyframes for scenes of this product.
+   * Map of sceneId to chosen image.
+   */
+  frames?: Record<string, GeneratedImage>;
   roadmap: RoadmapStep[];
 }
 

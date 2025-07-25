@@ -29,6 +29,16 @@ export interface GeneratedImage {
   promptUsed: string;
 }
 
+export interface GeneratedVideo {
+  id: string
+  sceneId: string
+  url: string
+  thumbnail: string
+  generator: string
+  duration: number
+  lipsyncUsed: boolean
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -45,6 +55,10 @@ export interface Product {
    * Map of sceneId to chosen image.
    */
   frames?: Record<string, GeneratedImage>;
+  /**
+   * Selected final videos for scenes.
+   */
+  videos?: Record<string, GeneratedVideo>;
   roadmap: RoadmapStep[];
 }
 

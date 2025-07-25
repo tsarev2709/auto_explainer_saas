@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
-import { useStore } from '../../../../lib/store';
-import ProductForm from '../../../../components/ProductForm';
-import RoadmapStepView from '../../../../components/RoadmapStep';
+import { useStore } from '../../../../../lib/store';
+import ProductForm from '../../../../../components/ProductForm';
+import RoadmapStepView from '../../../../../components/RoadmapStep';
 import toast from 'react-hot-toast';
 
 export default function ProductPage() {

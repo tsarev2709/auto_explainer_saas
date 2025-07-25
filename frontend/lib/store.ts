@@ -8,6 +8,20 @@ export interface RoadmapStep {
   data?: any;
 }
 
+export interface Scene {
+  id: string;
+  title: string;
+  description: string;
+  lipsync: boolean;
+  lipsyncText?: string;
+}
+
+export interface ScriptOutput {
+  storyboard: Scene[];
+  voiceoverText: string;
+  rationale: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -18,6 +32,7 @@ export interface Product {
   useCase: string;
   funnelDescription: string;
   productGoal: string;
+  script?: ScriptOutput;
   roadmap: RoadmapStep[];
 }
 

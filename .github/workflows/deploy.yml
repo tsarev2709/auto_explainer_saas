@@ -21,12 +21,7 @@ jobs:
           cd frontend
           npm install
 
-      - name: Build
-        run: |
-          cd frontend
-          npm run build
-
-      - name: Export static site
+      - name: Build static site
         run: |
           cd frontend
           npm run export

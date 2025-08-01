@@ -37,3 +37,12 @@ jobs:
         run: |
           cd project-api
           npm test
+      - name: Install frontend deps
+        run: |
+          cd frontend
+          npm ci
+      - name: Lint and test frontend
+        run: |
+          cd frontend
+          npm run lint
+          npx jest tests/EditProjectPage.test.tsx tests/NewProjectPage.test.tsx tests/ProjectVideoForm.test.tsx

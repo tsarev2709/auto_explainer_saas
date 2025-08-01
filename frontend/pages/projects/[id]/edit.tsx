@@ -2,7 +2,9 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
-import ProjectVideoForm, { ProjectFormData } from '../../../components/ProjectVideoForm';
+import ProjectVideoForm, {
+  ProjectFormData,
+} from '../../../components/ProjectVideoForm';
 
 export default function EditProjectPage() {
   const router = useRouter();
@@ -14,8 +16,8 @@ export default function EditProjectPage() {
   useEffect(() => {
     if (!id) return;
     fetch(`/api/projects/${id}`)
-      .then(r => (r.ok ? r.json() : null))
-      .then(data => {
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
         if (data) setInitial(data);
       });
   }, [id]);
@@ -24,7 +26,7 @@ export default function EditProjectPage() {
     const res = await fetch(`/api/projects/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
     if (res.ok) {
       toast.success('Проект обновлён');

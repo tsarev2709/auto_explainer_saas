@@ -1,7 +1,9 @@
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
-import ProjectVideoForm, { ProjectFormData } from '../../components/ProjectVideoForm';
+import ProjectVideoForm, {
+  ProjectFormData
+} from '../../components/ProjectVideoForm';
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -12,12 +14,11 @@ export default function NewProjectPage() {
     const res = await fetch('/api/projects', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...data, status: 'draft' }) // взято из версии Codex
+      body: JSON.stringify({ ...data, status: 'draft' })
     });
     if (res.ok) {
-      const project = await res.json(); // чтобы получить ID проекта
       toast.success('Проект создан');
-      router.push(`/projects/${project.id}/edit`); // редирект на edit
+      router.push('/projects');
     } else {
       toast.error('Ошибка при сохранении');
     }

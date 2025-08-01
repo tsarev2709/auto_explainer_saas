@@ -12,11 +12,12 @@ export default function NewProjectPage() {
     const res = await fetch('/api/projects', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify({ ...data, status: 'draft' }) // взято из версии Codex
     });
     if (res.ok) {
+      const project = await res.json(); // чтобы получить ID проекта
       toast.success('Проект создан');
-      router.push('/projects');
+      router.push(`/projects/${project.id}/edit`); // редирект на edit
     } else {
       toast.error('Ошибка при сохранении');
     }

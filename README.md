@@ -7,6 +7,7 @@ This repository contains a prototype of an automatic explainer video generation 
 - **frontend** – Next.js app for interacting with the system.
 - **backend** – FastAPI service providing REST endpoints.
 - **express-backend** – Express.js service with a SQLite database.
+- **auth-server** – Express service handling registration and login.
 - **modules** – placeholder modules for the pipeline.
 - **docker-compose.yml** – run frontend and backend together.
 - **.github/workflows** – CI/CD configuration.

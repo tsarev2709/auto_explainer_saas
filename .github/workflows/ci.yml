@@ -2,31 +2,38 @@ name: CI
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: projects_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Node
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      - name: Install backend deps
+      - name: Install deps
         run: |
-          cd backend
-          pip install -r requirements.txt
-      - name: Run backend lint
-        run: echo "lint"
-      - name: Install frontend deps
+          cd project-api
+          npm ci
+      - name: Run tests
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/projects_db
         run: |
-          cd frontend
-          npm install
-      - name: Build frontend
-        run: |
-          cd frontend
-          npm run build
+          cd project-api
+          npm test

@@ -1,0 +1,17 @@
+version: '3'
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: projects_db
+    ports:
+      - "5432:5432"
+  api:
+    build: .
+    ports:
+      - "4000:4000"
+    env_file: .env
+    depends_on:
+      - db

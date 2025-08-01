@@ -65,6 +65,32 @@ app.get('/api/projects/:id', async (req, res) => {
   }
 });
 
+app.put('/api/projects/:id', async (req, res) => {
+  const userId = getUserId(req);
+  if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+  const id = req.params.id;
+  const fields = ['title', 'description', 'format', 'target_audience', 'goals', 'tone', 'style'];
+  const updates = [];
+  const values = [];
+  fields.forEach((f, idx) => {
+    if (req.body[f] !== undefined) {
+      updates.push(`${f} = $${updates.length + 1}`);
+      values.push(req.body[f]);
+    }
+  });
+  if (updates.length === 0) return res.status(400).json({ error: 'No fields to update' });
+  values.push(id, userId);
+  try {
+    const { rowCount } = await pool.query(`UPDATE projects SET ${updates.join(', ')} WHERE id = $${updates.length + 1} AND user_id = $${updates.length + 2}`, values);
+    if (rowCount === 0) return res.status(404).json({ error: 'Not found' });
+    const { rows } = await pool.query('SELECT * FROM projects WHERE id = $1 AND user_id = $2', [id, userId]);
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Project API running on port ${PORT}`);

@@ -36,6 +36,16 @@ app.post('/api/products', (req, res) => {
   res.json(product);
 });
 
+// GET /api/products - list products by project_id
+app.get('/api/products', (req, res) => {
+  const { project_id } = req.query
+  if (!project_id) {
+    return res.status(400).json({ error: 'project_id is required' })
+  }
+  const products = db.prepare('SELECT * FROM products WHERE project_id = ?').all(project_id)
+  res.json(products)
+})
+
 // GET /api/products/:project_id - get product by project
 app.get('/api/products/:project_id', (req, res) => {
   const { project_id } = req.params;
@@ -71,6 +81,16 @@ app.put('/api/products/:id', (req, res) => {
   const product = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
   res.json(product);
 });
+
+// DELETE /api/products/:id - delete product
+app.delete('/api/products/:id', (req, res) => {
+  const { id } = req.params
+  const info = db.prepare('DELETE FROM products WHERE id = ?').run(id)
+  if (info.changes === 0) {
+    return res.status(404).json({ error: 'Product not found' })
+  }
+  res.json({ success: true })
+})
 
 const port = process.env.PORT || 3001;
 app.listen(port, () => {

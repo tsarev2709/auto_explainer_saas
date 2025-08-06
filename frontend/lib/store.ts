@@ -59,6 +59,10 @@ export interface Product {
    * Selected final videos for scenes.
    */
   videos?: Record<string, GeneratedVideo>;
+  /**
+   * Final assembled video url.
+   */
+  finalVideoUrl?: string;
   roadmap: RoadmapStep[];
 }
 

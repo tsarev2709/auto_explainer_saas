@@ -4,6 +4,7 @@ import SceneAnimationCard from './SceneAnimationCard'
 import ProgressFooter from './ProgressFooter'
 import SettingsPanel from './SettingsPanel'
 import { useRouter } from 'next/router'
+import toast from 'react-hot-toast'
 
 interface Props {
   projectId: string
@@ -33,21 +34,30 @@ export default function AnimationPanel({ projectId, productId, scenes, keyframes
 
   const generate = async (sceneId: string) => {
     setLoading(l => ({ ...l, [sceneId]: true }))
-    const res = await fetch('/api/generate-video', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sceneId,
-        generator: generators[sceneId],
-        duration: durations[sceneId],
-        imageUrl: keyframes[sceneId]?.url,
-        lipsyncText: scenes.find(sc => sc.id === sceneId)?.lipsyncText,
-        apiKey: apiKeys[generators[sceneId]]
+    const toastId = toast.loading('Генерация видео...')
+    try {
+      const res = await fetch('/api/generate-video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sceneId,
+          generator: generators[sceneId],
+          duration: durations[sceneId],
+          imageUrl: keyframes[sceneId]?.url,
+          lipsyncText: scenes.find(sc => sc.id === sceneId)?.lipsyncText,
+          apiKey: apiKeys[generators[sceneId]]
+        })
       })
-    })
-    const data: GeneratedVideo = await res.json()
-    setVideos(v => ({ ...v, [sceneId]: [...(v[sceneId] || []), data] }))
-    setLoading(l => ({ ...l, [sceneId]: false }))
+      if (!res.ok) throw new Error(await res.text())
+      const data: GeneratedVideo = await res.json()
+      setVideos(v => ({ ...v, [sceneId]: [...(v[sceneId] || []), data] }))
+      toast.success('Видео сгенерировано', { id: toastId })
+    } catch (err) {
+      console.error(err)
+      toast.error('Ошибка генерации видео', { id: toastId })
+    } finally {
+      setLoading(l => ({ ...l, [sceneId]: false }))
+    }
   }
 
   const select = (sceneId: string, video: GeneratedVideo) => {

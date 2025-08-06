@@ -3,6 +3,7 @@ import { Scene, GeneratedImage } from '../lib/store'
 import SceneFrameCard from './SceneFrameCard'
 import FooterProgress from './FooterProgress'
 import { useRouter } from 'next/router'
+import toast from 'react-hot-toast'
 
 interface Style { id: string; url: string }
 
@@ -44,19 +45,28 @@ export default function FrameGenerationPanel({ projectId, productId, scenes, ini
 
   const generate = async (sceneId: string) => {
     setLoading(l => ({ ...l, [sceneId]: true }))
-    const res = await fetch('/api/generate-frame', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sceneId,
-        prompt: prompts[sceneId],
-        format: formats[sceneId],
-        styleId
+    const toastId = toast.loading('Генерация изображения...')
+    try {
+      const res = await fetch('/api/generate-frame', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sceneId,
+          prompt: prompts[sceneId],
+          format: formats[sceneId],
+          styleId
+        })
       })
-    })
-    const data: GeneratedImage[] = await res.json()
-    setImages(i => ({ ...i, [sceneId]: data }))
-    setLoading(l => ({ ...l, [sceneId]: false }))
+      if (!res.ok) throw new Error(await res.text())
+      const data: GeneratedImage[] = await res.json()
+      setImages(i => ({ ...i, [sceneId]: data }))
+      toast.success('Изображение сгенерировано', { id: toastId })
+    } catch (err) {
+      console.error(err)
+      toast.error('Ошибка генерации изображения', { id: toastId })
+    } finally {
+      setLoading(l => ({ ...l, [sceneId]: false }))
+    }
   }
 
   const select = (sceneId: string, img: GeneratedImage) => {

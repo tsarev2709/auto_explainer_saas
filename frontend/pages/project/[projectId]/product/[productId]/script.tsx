@@ -19,15 +19,23 @@ export default function ScriptPage() {
 
   const handleGenerate = async () => {
     setLoading(true)
-    const res = await fetch('/api/generate-script', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ business: product })
-    })
-    const data: ScriptOutput = await res.json()
-    updateProduct(project.id, { ...product, script: data })
-    toast.success('Сценарий сгенерирован')
-    setLoading(false)
+    const toastId = toast.loading('Генерация сценария...')
+    try {
+      const res = await fetch('/api/generate-script', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ business: product })
+      })
+      if (!res.ok) throw new Error(await res.text())
+      const data: ScriptOutput = await res.json()
+      updateProduct(project.id, { ...product, script: data })
+      toast.success('Сценарий сгенерирован', { id: toastId })
+    } catch (err) {
+      console.error(err)
+      toast.error('Ошибка генерации сценария', { id: toastId })
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSave = (script: ScriptOutput) => {
@@ -47,8 +55,8 @@ export default function ScriptPage() {
         <div className="space-y-4">
           <ScriptEditor initial={product.script} onChange={handleSave} />
           <div className="flex space-x-2">
-            <button onClick={handleGenerate} className="bg-brandPink text-white px-4 py-2 rounded">
-              Перегенерировать
+            <button onClick={handleGenerate} disabled={loading} className="bg-brandPink text-white px-4 py-2 rounded">
+              {loading ? 'Генерация...' : 'Перегенерировать'}
             </button>
             <button onClick={() => router.push(`/project/${project.id}/product/${product.id}/frames`)} className="bg-brandTurquoise text-white px-4 py-2 rounded">
               Перейти к ключевым кадрам

@@ -2,6 +2,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/router';
+import { signIn, getSession } from 'next-auth/react';
 
 const schema = z.object({
   email: z.string().email('Неверный email'),
@@ -25,10 +26,16 @@ export default function SignUp() {
       body: JSON.stringify(data)
     });
     if (res.ok) {
-      const { token } = await res.json();
-      if (token) {
-        localStorage.setItem('token', token);
-        router.push('/dashboard');
+      const loginRes = await signIn('credentials', {
+        redirect: false,
+        email: data.email,
+        password: data.password
+      });
+      if (loginRes?.ok) {
+        const session = await getSession();
+        if (session?.accessToken) {
+          router.push('/dashboard');
+        }
       }
     }
   };

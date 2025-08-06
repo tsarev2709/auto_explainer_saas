@@ -8,6 +8,7 @@ export default function ScriptEditor({ initial, onChange }: { initial?: ScriptOu
   const [data, setData] = useState<ScriptOutput>(
     initial || { storyboard: [], voiceoverText: '', rationale: '' }
   )
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
 
   const updateScene = (idx: number, scene: Scene) => {
     const storyboard = [...data.storyboard]
@@ -15,6 +16,22 @@ export default function ScriptEditor({ initial, onChange }: { initial?: ScriptOu
     const newData = { ...data, storyboard }
     setData(newData)
     onChange(newData)
+  }
+
+  const generateAudio = async () => {
+    const res = await fetch('/api/generate-voiceover', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: data.voiceoverText })
+    })
+    if (res.ok) {
+      const payload = await res.json()
+      const bytes = atob(payload.audio)
+      const arr = new Uint8Array(bytes.length)
+      for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i)
+      const blob = new Blob([arr], { type: 'audio/mpeg' })
+      setAudioUrl(URL.createObjectURL(blob))
+    }
   }
 
   return (
@@ -30,6 +47,14 @@ export default function ScriptEditor({ initial, onChange }: { initial?: ScriptOu
           onChange(newData)
         }}
       />
+      <button
+        type="button"
+        className="px-2 py-1 border rounded"
+        onClick={generateAudio}
+      >
+        Сгенерировать аудио
+      </button>
+      {audioUrl && <audio controls src={audioUrl} className="w-full" />}
       <RationaleBox
         text={data.rationale}
         onChange={val => {

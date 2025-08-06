@@ -1,0 +1,10 @@
+{
+  "name": "voice-mixer",
+  "version": "1.0.0",
+  "description": "Mixes voiceover audio with video tracks using ffmpeg",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {}
+}

@@ -1,26 +1,51 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { v4 as uuid } from 'uuid'
-import { Project } from '../../../lib/store'
 
-let projects: Project[] = []
+const API_URL = process.env.PROJECT_API_URL || 'http://localhost:4000/api/projects'
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    res.status(200).json(projects)
-  } else if (req.method === 'POST') {
-    const data = req.body
-    const project: Project = {
-      id: uuid(),
-      companyName: data.companyName,
-      sphere: data.sphere,
-      description: data.description,
-      niche: data.niche,
-      mission: data.mission,
-      createdAt: new Date().toISOString(),
-      products: []
+    try {
+      const r = await fetch(API_URL, {
+        headers: { Authorization: req.headers.authorization || '' }
+      })
+      const data = await r.json()
+      const projects = data.map((p: any) => ({
+        id: String(p.id),
+        companyName: p.title,
+        description: p.description,
+        createdAt: p.created_at,
+        products: []
+      }))
+      res.status(200).json(projects)
+    } catch (e) {
+      res.status(500).json({ error: 'Failed to fetch projects' })
     }
-    projects.push(project)
-    res.status(201).json(project)
+  } else if (req.method === 'POST') {
+    try {
+      const body = req.body
+      const r = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: req.headers.authorization || ''
+        },
+        body: JSON.stringify({
+          title: body.companyName,
+          description: body.description
+        })
+      })
+      const data = await r.json()
+      const project = {
+        id: String(data.id),
+        companyName: data.title,
+        description: data.description,
+        createdAt: data.created_at,
+        products: []
+      }
+      res.status(201).json(project)
+    } catch (e) {
+      res.status(500).json({ error: 'Failed to create project' })
+    }
   } else {
     res.status(405).end()
   }

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
 export interface RoadmapStep {
   id: string;
@@ -80,33 +79,44 @@ export interface Project {
 
 interface StoreState {
   projects: Project[];
-  addProject: (project: Project) => void;
+  fetchProjects: () => Promise<void>;
+  createProject: (data: Partial<Project>) => Promise<void>;
   updateProject: (project: Project) => void;
   addProduct: (projectId: string, product: Product) => void;
   updateProduct: (projectId: string, product: Product) => void;
 }
 
-export const useStore = create<StoreState>()(
-  persist(
-    (set, get) => ({
-      projects: [],
-      addProject: (project) =>
-        set({ projects: [...get().projects, project] }),
-      updateProject: (project) =>
-        set({ projects: get().projects.map(p => p.id === project.id ? project : p) }),
-      addProduct: (projectId, product) =>
-        set({
-          projects: get().projects.map(p => p.id === projectId ? { ...p, products: [...p.products, product] } : p)
-        }),
-      updateProduct: (projectId, product) =>
-        set({
-          projects: get().projects.map(p =>
-            p.id === projectId
-              ? { ...p, products: p.products.map(pr => pr.id === product.id ? product : pr) }
-              : p
-          )
-        }),
+export const useStore = create<StoreState>((set, get) => ({
+  projects: [],
+  fetchProjects: async () => {
+    const res = await fetch('/api/projects');
+    if (res.ok) {
+      const data = await res.json();
+      set({ projects: data });
+    }
+  },
+  createProject: async (data) => {
+    const res = await fetch('/api/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('Failed to create project');
+    const project = await res.json();
+    set({ projects: [...get().projects, project] });
+  },
+  updateProject: (project) =>
+    set({ projects: get().projects.map(p => p.id === project.id ? project : p) }),
+  addProduct: (projectId, product) =>
+    set({
+      projects: get().projects.map(p => p.id === projectId ? { ...p, products: [...p.products, product] } : p)
     }),
-    { name: 'ae-projects' }
-  )
-);
+  updateProduct: (projectId, product) =>
+    set({
+      projects: get().projects.map(p =>
+        p.id === projectId
+          ? { ...p, products: p.products.map(pr => pr.id === product.id ? product : pr) }
+          : p
+      )
+    }),
+}));

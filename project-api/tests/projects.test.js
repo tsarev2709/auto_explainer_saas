@@ -72,3 +72,37 @@ describe('GET /api/projects/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('PUT /api/projects/:id', () => {
+  it('updates a project', async () => {
+    const createRes = await request(app)
+      .post('/api/projects')
+      .set('Authorization', `Bearer ${testUserId}`)
+      .send({ title: 'Old', format: '16:9' });
+    const id = createRes.body.id;
+    const res = await request(app)
+      .put(`/api/projects/${id}`)
+      .set('Authorization', `Bearer ${testUserId}`)
+      .send({ title: 'New', format: '1:1' });
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('New');
+  });
+});
+
+describe('DELETE /api/projects/:id', () => {
+  it('deletes a project', async () => {
+    const createRes = await request(app)
+      .post('/api/projects')
+      .set('Authorization', `Bearer ${testUserId}`)
+      .send({ title: 'ToDelete', format: '16:9' });
+    const id = createRes.body.id;
+    const res = await request(app)
+      .delete(`/api/projects/${id}`)
+      .set('Authorization', `Bearer ${testUserId}`);
+    expect(res.status).toBe(204);
+    const listRes = await request(app)
+      .get('/api/projects')
+      .set('Authorization', `Bearer ${testUserId}`);
+    expect(listRes.body.length).toBe(0);
+  });
+});

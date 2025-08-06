@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const router = require('./routes/projectsRoutes');
+const voiceoverRoutes = require('./routes/voiceoverRoutes');
 const { createTable } = require('./models/projectModel');
 const swagger = require('../swagger');
 
@@ -12,6 +13,7 @@ app.use(express.json());
 swagger(app);
 
 app.use('/api', router);
+app.use('/api', voiceoverRoutes);
 
 if (require.main === module) {
   const PORT = process.env.PORT || 4000;

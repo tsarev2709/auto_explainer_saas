@@ -43,9 +43,33 @@ async function findProjectById(userId, id) {
   return rows[0];
 }
 
+async function updateProject(userId, id, data) {
+  const {
+    title,
+    description,
+    format,
+    target_audience,
+    goals,
+    tone,
+    style,
+  } = data;
+  const { rows } = await pool.query(
+    `UPDATE projects SET title = $1, description = $2, format = $3, target_audience = $4, goals = $5, tone = $6, style = $7
+     WHERE id = $8 AND user_id = $9 RETURNING *`,
+    [title, description, format, target_audience, goals, tone, style, id, userId]
+  );
+  return rows[0];
+}
+
+async function deleteProject(userId, id) {
+  await pool.query('DELETE FROM projects WHERE id = $1 AND user_id = $2', [id, userId]);
+}
+
 module.exports = {
   createTable,
   insertProject,
   findProjectsByUser,
   findProjectById,
+  updateProject,
+  deleteProject,
 };

@@ -50,4 +50,8 @@ router.get('/projects', getUserId, controller.getProjects);
  */
 router.get('/projects/:id', getUserId, controller.getProjectById);
 
+router.put('/projects/:id', getUserId, validateProject, controller.updateProject);
+
+router.delete('/projects/:id', getUserId, controller.deleteProject);
+
 module.exports = router;

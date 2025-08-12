@@ -1,40 +1,35 @@
-import { useSession, getSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import ProjectCard from '../components/ProjectCard';
 import CompanyForm from '../components/CompanyForm';
 import { Dialog } from '@headlessui/react';
-import { useStore, Project } from '../lib/store';
-import { v4 as uuid } from 'uuid';
+import { useStore } from '../lib/store';
 import toast from 'react-hot-toast';
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const projects = useStore(s => s.projects);
-  const addProject = useStore(s => s.addProject);
+  const fetchProjects = useStore(s => s.fetchProjects);
+  const createProject = useStore(s => s.createProject);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') router.replace('/auth');
-  }, [status, router]);
+    if (status === 'authenticated') fetchProjects();
+  }, [status, router, fetchProjects]);
 
   if (!session) return null;
 
-  const handleCreate = (data: any) => {
-    const project: Project = {
-      id: uuid(),
-      companyName: data.companyName,
-      sphere: data.sphere,
-      description: data.description,
-      niche: data.niche,
-      mission: data.mission,
-      createdAt: new Date().toISOString(),
-      products: [],
-    };
-    addProject(project);
-    setOpen(false);
-    toast.success('Проект создан');
+  const handleCreate = async (data: any) => {
+    try {
+      await createProject(data);
+      setOpen(false);
+      toast.success('Проект создан');
+    } catch (e) {
+      toast.error('Ошибка при создании проекта');
+    }
   };
 
   return (

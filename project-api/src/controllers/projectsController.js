@@ -31,8 +31,31 @@ async function getProjectById(req, res) {
   }
 }
 
+async function updateProject(req, res) {
+  try {
+    const project = await service.updateProject(req.userId, req.params.id, req.validatedBody);
+    if (!project) return res.status(404).json({ error: 'Not found' });
+    res.json(project);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+}
+
+async function deleteProject(req, res) {
+  try {
+    await service.deleteProject(req.userId, req.params.id);
+    res.status(204).end();
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+}
+
 module.exports = {
   createProject,
   getProjects,
   getProjectById,
+  updateProject,
+  deleteProject,
 };
